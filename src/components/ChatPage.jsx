@@ -23,8 +23,8 @@ const mockItems = [
   { name: 'Item 1', price: 10, imageUrl: "images/1531.jpg" },
   { name: 'Item 2', price: 20, imageUrl: "images/1532.jpg" },
   { name: 'Item 3', price: 30, imageUrl: "images/1534.jpg" },
-  { name: 'Item 4', price: 40, imageUrl: "images/1531.jpg" },
-  { name: 'Item 5', price: 50, imageUrl: "images/1531.jpg" },
+  { name: 'Item 4', price: 40, imageUrl: "images/1575.jpg" },
+  { name: 'Item 5', price: 50, imageUrl: "images/5701.jpg" },
 ];
 
 const mockSubmissions = [
@@ -71,7 +71,6 @@ const ChatPage = ({ items }) => {
   const [submitted, setSubmitted] = useState(false);
   const [submissions, setSubmissions] = useState(mockSubmissions);
   const [likes, setLikes] = useState(() => {
-    // Initialize likes state
     const initialLikes = {};
     mockSubmissions.forEach((submission, index) => {
       initialLikes[`User${index + 1}`] = Array(submission.entries.length).fill(15);
@@ -79,18 +78,26 @@ const ChatPage = ({ items }) => {
     return initialLikes;
   });
 
-  // Function to start the contest
-  const startContest = () => {
-    setContestStarted(true);
-    setTimeRemaining(5 * 60); // Set timer to 5 minutes (300 seconds)
+  const [contestCode] = useState('12345'); // Set the contest code here
+  const [enteredCode, setEnteredCode] = useState('');
+
+  const handleCodeChange = (e) => {
+    setEnteredCode(e.target.value);
   };
 
-  // Function to handle entry selection
+  const startContest = () => {
+    if (enteredCode === contestCode) {
+      setContestStarted(true);
+      setTimeRemaining(5 * 60); // Set timer to 5 minutes (300 seconds)
+    } else {
+      alert('Invalid contest code.');
+    }
+  };
+
   const handleEntrySelect = (item) => {
     setEntries((prevEntries) => [...prevEntries, item]);
   };
 
-  // Function to handle entry submission
   const submitEntry = () => {
     if (entries.length === 0) {
       alert('Please add at least one entry.');
@@ -113,12 +120,10 @@ const ChatPage = ({ items }) => {
     setEntryDetails(''); // Clear entry details
   };
 
-  // Function to handle liking an entry
   const handleLike = (userIndex, itemIndex) => {
     const userKey = `User${userIndex + 1}`;
     setLikes((prevLikes) => {
       const newLikes = { ...prevLikes };
-      // Ensure that the user and itemIndex exist
       if (newLikes[userKey] && newLikes[userKey][itemIndex] !== undefined) {
         newLikes[userKey][itemIndex] += 1; // Increment like count
       }
@@ -143,7 +148,6 @@ const ChatPage = ({ items }) => {
     return () => clearInterval(interval); // Cleanup interval on component unmount
   }, [contestStarted]);
 
-  // Convert timeRemaining in seconds to MM:SS format
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -158,6 +162,13 @@ const ChatPage = ({ items }) => {
             <Typography variant="h5" gutterBottom>
               Contest
             </Typography>
+            <TextField
+              label="Enter Contest Code"
+              value={enteredCode}
+              onChange={handleCodeChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
             <Button
               variant="contained"
               color="primary"
